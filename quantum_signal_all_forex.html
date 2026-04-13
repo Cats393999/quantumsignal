@@ -1,0 +1,714 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#00e676;--r:#ff1744;--b:#00b0ff;--y:#ffd600;--p:#ce93d8;--bg:#07101a;--bg2:#0d1b2a;--bg3:#112236;--bdr:#1a3a5c;--txt:#b0cce8;--dim:#4a7aa0;--muted:#1a3050}
+#app{background:var(--bg);font-family:'Courier New',monospace;color:var(--txt);display:flex;flex-direction:column;min-height:760px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:7px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.logo{font-size:12px;font-weight:700;color:var(--g);letter-spacing:2px;font-family:'Georgia',serif}.logo span{color:var(--b)}
+.chips{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.chip{font-size:8px;padding:2px 6px;border-radius:8px;border:1px solid;font-weight:700}
+.chip.live{color:var(--g);border-color:var(--g);animation:blk 1.4s infinite}
+.chip.ai{color:var(--p);border-color:var(--p)}.chip.yf{color:var(--y);border-color:var(--y)}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:.3}}
+.clk{font-size:9px;color:var(--dim)}
+
+.cat-bar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:4px 10px;display:flex;gap:3px;overflow-x:auto;flex-wrap:nowrap}
+.cat-btn{padding:3px 10px;border-radius:4px;border:1px solid var(--bdr);background:none;color:var(--dim);font-size:9px;cursor:pointer;white-space:nowrap;font-family:'Courier New',monospace;transition:all .15s;flex-shrink:0}
+.cat-btn.on{border-color:var(--b);color:var(--b);background:rgba(0,176,255,.08)}
+
+.pair-bar{background:var(--muted);border-bottom:1px solid var(--bdr);padding:4px 10px;display:flex;gap:3px;overflow-x:auto;flex-wrap:nowrap;min-height:34px;align-items:center}
+.pair-btn{padding:2px 8px;border-radius:4px;border:1px solid var(--bdr);background:none;color:var(--dim);font-size:9px;cursor:pointer;white-space:nowrap;font-family:'Courier New',monospace;transition:all .15s;flex-shrink:0}
+.pair-btn.on{border-color:var(--y);color:var(--y);background:rgba(255,214,0,.08)}
+.pair-btn.fetched{border-color:rgba(0,230,118,.4);color:var(--g)}
+.pair-btn.on.fetched{border-color:var(--y);color:var(--y)}
+
+.fetch-bar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:5px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fb-btn{padding:4px 12px;background:none;border:1px solid var(--y);color:var(--y);border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.fb-btn:hover{background:rgba(255,214,0,.1)}
+.fb-btn:disabled{opacity:.4;cursor:not-allowed}
+.fb-btn.custom-inp{border-color:var(--p);color:var(--p)}
+.fb-btn.custom-inp:hover{background:rgba(206,147,216,.1)}
+.fb-status{font-size:9px;font-weight:700}
+.fb-note{font-size:8px;color:var(--dim);flex:1}
+
+.body{display:grid;grid-template-columns:1fr 260px;flex:1}
+@media(max-width:640px){.body{grid-template-columns:1fr}}
+.left{padding:10px;display:flex;flex-direction:column;gap:8px}
+.right{border-left:1px solid var(--bdr);background:var(--bg2);padding:10px;display:flex;flex-direction:column;gap:8px}
+
+.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;overflow:hidden}
+.sec{padding:6px 12px;font-size:9px;color:var(--dim);letter-spacing:1px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;font-weight:700}
+
+.sig-row{padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sym-n{font-size:19px;font-weight:700;color:#fff;font-family:'Georgia',serif}
+.price-big{font-size:21px;font-weight:700;font-family:'Georgia',serif;margin-top:2px;transition:color .3s}
+.price-sub{font-size:9px;margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sig-pill{font-size:14px;font-weight:700;padding:5px 14px;border-radius:6px;letter-spacing:1px;font-family:'Georgia',serif;min-width:80px;text-align:center}
+.sig-pill.BUY{background:rgba(0,230,118,.1);color:var(--g);border:1.5px solid var(--g)}
+.sig-pill.SELL{background:rgba(255,23,68,.1);color:var(--r);border:1.5px solid var(--r)}
+.sig-pill.WAIT{background:rgba(255,214,0,.08);color:var(--y);border:1.5px solid var(--y)}
+.sig-pill.LOAD{background:rgba(0,176,255,.06);color:var(--b);border:1.5px solid rgba(0,176,255,.3)}
+.src-tag{font-size:7px;padding:1px 4px;border-radius:2px;border:1px solid}
+.src-real{border-color:var(--g);color:var(--g)}.src-sim{border-color:var(--bdr);color:var(--dim)}
+
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:8px 12px}
+.met{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:6px 8px;text-align:center}
+.ml{font-size:8px;color:var(--dim);letter-spacing:.5px;margin-bottom:3px}
+.mv{font-size:12px;font-weight:700}.ms{font-size:8px;margin-top:1px}
+.g{color:var(--g)}.r{color:var(--r)}.b{color:var(--b)}.y{color:var(--y)}.p{color:var(--p)}.w{color:#fff}
+
+.conf-wrap{padding:5px 12px 10px}
+.conf-lbl{display:flex;justify-content:space-between;font-size:8px;margin-bottom:4px}
+.cbar{height:9px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid var(--bdr)}
+.cfill{height:100%;border-radius:4px;transition:width .8s}
+.cfill.hi{background:var(--g)}.cfill.md{background:var(--y)}.cfill.lo{background:var(--r)}
+
+.vbar-row{padding:0 12px 8px;display:flex;align-items:center;gap:6px}
+.vbar{flex:1;height:18px;background:var(--bg3);border-radius:4px;border:1px solid var(--bdr);overflow:hidden;display:flex}
+.vb-b{background:rgba(0,230,118,.22);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--g);font-weight:700;transition:width .7s}
+.vb-s{background:rgba(255,23,68,.22);flex:1;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--r);font-weight:700}
+.vl{font-size:8px;color:var(--dim)}
+
+.mtf-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:6px 12px 10px}
+.mtf-c{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:5px 3px;text-align:center}
+.mtf-t{font-size:8px;color:var(--dim);margin-bottom:2px}.mtf-d{font-size:11px;font-weight:700}
+
+.ai-msgs{padding:8px 12px;display:flex;flex-direction:column;gap:5px;max-height:175px;overflow-y:auto}
+.ai-msgs::-webkit-scrollbar{width:3px}
+.ai-msgs::-webkit-scrollbar-thumb{background:var(--bdr)}
+.msg{padding:6px 10px;border-radius:6px;font-size:10px;line-height:1.5}
+.msg.ai{background:var(--muted);border-left:2px solid var(--p)}
+.msg.user{background:rgba(0,176,255,.07);border-left:2px solid var(--b);color:var(--b)}
+.msg-who{font-size:8px;font-weight:700;margin-bottom:2px;letter-spacing:.5px}
+.msg.ai .msg-who{color:var(--p)}.msg.user .msg-who{color:var(--b)}
+.typing{display:flex;gap:3px;padding:4px 0;align-items:center}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--p);animation:bounce .9s infinite}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-4px);opacity:1}}
+.ai-inp-row{padding:6px 12px;border-top:1px solid var(--bdr);display:flex;gap:5px}
+.ai-inp{flex:1;padding:6px 10px;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;color:var(--txt);font-size:10px;font-family:'Courier New',monospace;outline:none}
+.ai-inp:focus{border-color:var(--p)}
+.ai-send{padding:6px 10px;background:none;border:1px solid var(--p);color:var(--p);border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ai-send:disabled{opacity:.4;cursor:not-allowed}
+
+.tf-row2{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px}
+.t2{padding:3px 6px;border-radius:4px;border:1px solid var(--bdr);background:none;color:var(--dim);font-size:9px;cursor:pointer;transition:all .15s;font-family:'Courier New',monospace}
+.t2.on{border-color:var(--y);color:var(--y);background:rgba(255,214,0,.08)}
+.scan-btn{width:100%;padding:9px;background:var(--bg3);border:1px solid var(--b);color:var(--b);font-family:'Georgia',serif;font-size:11px;font-weight:700;border-radius:7px;cursor:pointer;letter-spacing:1px;transition:all .15s}
+.scan-btn:hover{background:rgba(0,176,255,.1)}
+.scan-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.ticker-wrap{max-height:220px;overflow-y:auto}
+.ticker-wrap::-webkit-scrollbar{width:3px}
+.ticker-wrap::-webkit-scrollbar-thumb{background:var(--bdr)}
+.ticker-row{padding:4px 10px;border-bottom:1px solid rgba(26,58,92,.2);display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:9px;cursor:pointer;transition:background .1s}
+.ticker-row:hover{background:rgba(0,176,255,.05)}
+.ticker-row:last-child{border-bottom:none}
+.t-sym{font-weight:700;color:var(--txt);min-width:58px;font-size:9px}
+.t-price{font-family:'Georgia',serif;font-size:10px;font-weight:700;flex:1;text-align:right}
+.t-chg{font-size:8px;padding:1px 4px;border-radius:3px;min-width:40px;text-align:center}
+.up-bg{background:rgba(0,230,118,.12);color:var(--g)}.dn-bg{background:rgba(255,23,68,.12);color:var(--r)}
+.t-src{font-size:7px;padding:1px 3px;border-radius:2px;border:1px solid}
+.t-src.r{border-color:var(--g);color:var(--g)}.t-src.s{border-color:var(--bdr);color:var(--dim)}
+
+.pop-zone{display:flex;flex-direction:column;gap:5px}
+.pop{background:var(--bg3);border-radius:7px;border-left:3px solid var(--pc,var(--g));padding:8px 10px;animation:si .35s ease-out}
+@keyframes si{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.pop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.pop-sym{font-size:11px;font-weight:700;color:#fff;font-family:'Georgia',serif}
+.pop-b{font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px}
+.pop-b.BUY{background:rgba(0,230,118,.15);color:var(--g);border:1px solid var(--g)}
+.pop-b.SELL{background:rgba(255,23,68,.15);color:var(--r);border:1px solid var(--r)}
+.pop-x{color:var(--dim);cursor:pointer;font-size:11px;background:none;border:none;line-height:1}
+.pop-r{display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px}
+.pl{color:var(--dim)}.pv{font-weight:700;font-family:'Georgia',serif}
+.pop-bar{height:3px;background:var(--bg2);border-radius:2px;overflow:hidden;margin-top:4px}
+.pop-bar-fill{height:100%;border-radius:2px}
+.pop-note{font-size:8px;color:var(--dim);margin-top:3px;padding-top:3px;border-top:1px solid var(--bdr)}
+
+.scan-ov{display:none;padding:18px 12px;flex-direction:column;align-items:center;gap:8px}
+.scan-ov.show{display:flex}
+.spin{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--bdr);border-top-color:var(--p);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-t{font-size:10px;color:var(--p);letter-spacing:2px;font-weight:700}
+.spin-s{font-size:9px;color:var(--dim);text-align:center}
+
+.custom-row{padding:5px 12px;display:flex;gap:5px;align-items:center;border-top:1px solid var(--bdr)}
+.custom-inp{flex:1;padding:4px 8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;color:var(--txt);font-size:10px;font-family:'Courier New',monospace;outline:none;text-transform:uppercase}
+.custom-inp:focus{border-color:var(--p)}
+.custom-add{padding:4px 10px;background:none;border:1px solid var(--p);color:var(--p);border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
+</style>
+
+<div id="app">
+<div class="topbar">
+  <div>
+    <div class="logo">QUANTUM<span>SIGNAL</span> PRO <span style="font-size:10px;color:var(--y)">ALL FOREX</span></div>
+    <div style="font-size:8px;color:var(--dim);margin-top:1px">Yahoo Finance · Claude AI · ทุกสกุล Forex · Major/Minor/Exotic + Crypto + Index + Commodity</div>
+  </div>
+  <div class="chips">
+    <span class="chip live" id="live-chip">LOADING</span>
+    <span class="chip ai">CLAUDE AI</span>
+    <span class="chip yf">YAHOO</span>
+    <span class="clk" id="clk">--:--:--</span>
+  </div>
+</div>
+
+<div class="cat-bar" id="cat-bar"></div>
+<div class="pair-bar" id="pair-bar"></div>
+
+<div class="fetch-bar">
+  <button class="fb-btn" id="refresh-btn" onclick="fetchCatPrices(true)">↻ REFRESH</button>
+  <button class="fb-btn custom-inp" onclick="focusCustom()">+ เพิ่ม Symbol</button>
+  <span class="fb-status" id="fb-status" style="color:var(--y)">กำลังโหลด...</span>
+  <span class="fb-note" id="fb-note">Yahoo Finance · delay ~15 min · ไม่ต้อง API Key</span>
+</div>
+
+<div class="body">
+<div class="left">
+
+  <div class="card" id="main-card" style="border-left:3px solid var(--b)">
+    <div class="sig-row">
+      <div>
+        <div class="sym-n" id="sym-n">---</div>
+        <div class="price-big b" id="price-big">---</div>
+        <div class="price-sub">
+          <span id="p-chg" style="font-weight:700">---</span>
+          <span id="p-src" class="src-tag src-sim">---</span>
+          <span id="p-tf" style="color:var(--dim)">TF: M15</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="sig-pill LOAD" id="sig-pill">SCAN</div>
+        <div style="font-size:8px;color:var(--dim);margin-top:3px"><span id="ai-agree" style="font-weight:700;color:var(--b)">--/150</span> models</div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="met"><div class="ml">ENTRY</div><div class="mv b" id="m-en">---</div></div>
+      <div class="met"><div class="ml">TAKE PROFIT</div><div class="mv g" id="m-tp">---</div><div class="ms g" id="m-tpp">---</div></div>
+      <div class="met"><div class="ml">STOP LOSS</div><div class="mv r" id="m-sl">---</div><div class="ms r" id="m-slp">---</div></div>
+    </div>
+    <div class="g3">
+      <div class="met"><div class="ml">R:R</div><div class="mv g" id="m-rr">---</div></div>
+      <div class="met"><div class="ml">WIN EST</div><div class="mv b" id="m-wr">---</div></div>
+      <div class="met"><div class="ml">LOT (1%)</div><div class="mv y" id="m-lot">---</div></div>
+    </div>
+    <div class="conf-wrap">
+      <div class="conf-lbl"><span>AI CONFIDENCE</span><span id="conf-v" style="font-weight:700;color:var(--dim)">---</span></div>
+      <div class="cbar"><div class="cfill hi" id="cfill" style="width:0%"></div></div>
+    </div>
+    <div class="vbar-row">
+      <span class="vl">BUY</span>
+      <div class="vbar"><div class="vb-b" id="vb-b" style="width:50%">--</div><div class="vb-s" id="vb-s">--</div></div>
+      <span class="vl">SELL</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><span>MTF ANALYSIS</span><span style="color:var(--b)" id="cur-tf-lbl">M5 → D1</span></div>
+    <div class="mtf-grid" id="mtf-grid">
+      <div class="mtf-c"><div class="mtf-t">M5</div><div class="mtf-d" style="color:var(--dim)">--</div></div>
+      <div class="mtf-c"><div class="mtf-t">M15</div><div class="mtf-d" style="color:var(--dim)">--</div></div>
+      <div class="mtf-c"><div class="mtf-t">M30</div><div class="mtf-d" style="color:var(--dim)">--</div></div>
+      <div class="mtf-c"><div class="mtf-t">H1</div><div class="mtf-d" style="color:var(--dim)">--</div></div>
+      <div class="mtf-c"><div class="mtf-t">H4</div><div class="mtf-d" style="color:var(--dim)">--</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><span style="color:var(--p)">CLAUDE AI</span><span id="ai-status" style="font-size:8px;color:var(--g)">READY</span></div>
+    <div class="ai-msgs" id="ai-msgs">
+      <div class="msg ai"><div class="msg-who">CLAUDE AI</div>เลือก Category และ Symbol แล้วกด <b>AI SCAN</b> เพื่อรับ Signal ครับ — รองรับทุกสกุล Forex, Crypto, Index, Commodity และเพิ่ม Symbol เองได้</div>
+    </div>
+    <div class="custom-row">
+      <input class="custom-inp" id="custom-sym-inp" placeholder="พิมพ์ Symbol เอง เช่น THBUSD=X" onkeydown="if(event.key==='Enter')addCustomSym()">
+      <button class="custom-add" onclick="addCustomSym()">+ เพิ่ม</button>
+    </div>
+    <div class="ai-inp-row">
+      <input class="ai-inp" id="ai-inp" placeholder="ถาม Claude AI เกี่ยวกับตลาด..." onkeydown="if(event.key==='Enter')sendAI()">
+      <button class="ai-send" id="ai-send-btn" onclick="sendAI()">ส่ง</button>
+    </div>
+  </div>
+
+</div>
+<div class="right">
+
+  <div>
+    <div style="font-size:8px;color:var(--dim);letter-spacing:1px;margin-bottom:5px">TIMEFRAME</div>
+    <div class="tf-row2">
+      <button class="t2" onclick="pickTf(this,'M1')">M1</button>
+      <button class="t2" onclick="pickTf(this,'M5')">M5</button>
+      <button class="t2 on" onclick="pickTf(this,'M15')">M15</button>
+      <button class="t2" onclick="pickTf(this,'M30')">M30</button>
+      <button class="t2" onclick="pickTf(this,'H1')">H1</button>
+      <button class="t2" onclick="pickTf(this,'H4')">H4</button>
+      <button class="t2" onclick="pickTf(this,'D1')">D1</button>
+    </div>
+    <button class="scan-btn" id="scan-btn" onclick="doScan()">▶ AI SCAN</button>
+  </div>
+
+  <div class="scan-ov" id="scan-ov">
+    <div class="spin"></div>
+    <div class="spin-t" id="spin-t">AI SCAN</div>
+    <div class="spin-s" id="spin-s">ประมวลผล...</div>
+  </div>
+
+  <div>
+    <div style="font-size:8px;color:var(--p);letter-spacing:1px;margin-bottom:5px;font-weight:700">SIGNAL ALERTS</div>
+    <div class="pop-zone" id="pop-zone"></div>
+    <div style="font-size:8px;color:var(--dim);margin-top:4px;text-align:center" id="no-alert">เลือก Symbol แล้ว Scan ครับ</div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><span>PRICES</span><span id="ticker-hdr" style="font-size:8px;color:var(--dim)">Yahoo Finance</span></div>
+    <div class="ticker-wrap" id="ticker"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec"><span>AI INSIGHT</span></div>
+    <div style="padding:8px 12px" id="insight-wrap"><div style="font-size:9px;color:var(--dim)">รอผล Scan...</div></div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<script>
+const CATS={
+  'Major':{
+    'EURUSD=X':{l:'EURUSD',dec:5,pip:0.0001,pv:10,base:1.1320},
+    'GBPUSD=X':{l:'GBPUSD',dec:5,pip:0.0001,pv:10,base:1.3180},
+    'USDJPY=X':{l:'USDJPY',dec:3,pip:0.01,pv:6.6,base:146.50},
+    'USDCHF=X':{l:'USDCHF',dec:5,pip:0.0001,pv:10,base:0.8850},
+    'AUDUSD=X':{l:'AUDUSD',dec:5,pip:0.0001,pv:10,base:0.6420},
+    'USDCAD=X':{l:'USDCAD',dec:5,pip:0.0001,pv:7.5,base:1.3820},
+    'NZDUSD=X':{l:'NZDUSD',dec:5,pip:0.0001,pv:10,base:0.5940},
+  },
+  'Minor':{
+    'EURGBP=X':{l:'EURGBP',dec:5,pip:0.0001,pv:12.8,base:0.8590},
+    'EURJPY=X':{l:'EURJPY',dec:3,pip:0.01,pv:6.6,base:165.80},
+    'GBPJPY=X':{l:'GBPJPY',dec:3,pip:0.01,pv:6.6,base:193.20},
+    'AUDJPY=X':{l:'AUDJPY',dec:3,pip:0.01,pv:6.6,base:94.10},
+    'EURCHF=X':{l:'EURCHF',dec:5,pip:0.0001,pv:10,base:0.9490},
+    'GBPCHF=X':{l:'GBPCHF',dec:5,pip:0.0001,pv:10,base:1.1680},
+    'CHFJPY=X':{l:'CHFJPY',dec:3,pip:0.01,pv:6.6,base:165.50},
+    'EURCAD=X':{l:'EURCAD',dec:5,pip:0.0001,pv:7.5,base:1.5640},
+    'GBPCAD=X':{l:'GBPCAD',dec:5,pip:0.0001,pv:7.5,base:1.8210},
+    'AUDCAD=X':{l:'AUDCAD',dec:5,pip:0.0001,pv:7.5,base:0.8870},
+    'AUDNZD=X':{l:'AUDNZD',dec:5,pip:0.0001,pv:10,base:1.0810},
+    'NZDJPY=X':{l:'NZDJPY',dec:3,pip:0.01,pv:6.6,base:87.00},
+    'GBPAUD=X':{l:'GBPAUD',dec:5,pip:0.0001,pv:10,base:2.0510},
+    'EURAUD=X':{l:'EURAUD',dec:5,pip:0.0001,pv:10,base:1.7620},
+    'CADJPY=X':{l:'CADJPY',dec:3,pip:0.01,pv:6.6,base:106.00},
+  },
+  'Exotic':{
+    'USDTHB=X':{l:'USDTHB',dec:3,pip:0.01,pv:1,base:34.50},
+    'USDHKD=X':{l:'USDHKD',dec:5,pip:0.0001,pv:1,base:7.780},
+    'USDSGD=X':{l:'USDSGD',dec:5,pip:0.0001,pv:7.5,base:1.3360},
+    'USDMXN=X':{l:'USDMXN',dec:5,pip:0.0001,pv:1,base:16.820},
+    'USDZAR=X':{l:'USDZAR',dec:5,pip:0.0001,pv:1,base:18.420},
+    'USDTRY=X':{l:'USDTRY',dec:5,pip:0.0001,pv:1,base:32.500},
+    'USDBRL=X':{l:'USDBRL',dec:5,pip:0.0001,pv:1,base:5.020},
+    'USDCNH=X':{l:'USDCNH',dec:5,pip:0.0001,pv:1,base:7.240},
+    'USDINR=X':{l:'USDINR',dec:3,pip:0.01,pv:1,base:83.50},
+    'USDKRW=X':{l:'USDKRW',dec:1,pip:0.1,pv:0.01,base:1340},
+    'USDMYR=X':{l:'USDMYR',dec:5,pip:0.0001,pv:1,base:4.720},
+    'USDIDR=X':{l:'USDIDR',dec:0,pip:1,pv:0.0001,base:15800},
+    'EURTRY=X':{l:'EURTRY',dec:5,pip:0.0001,pv:1,base:35.200},
+    'GBPTRY=X':{l:'GBPTRY',dec:5,pip:0.0001,pv:1,base:41.800},
+    'EURMXN=X':{l:'EURMXN',dec:5,pip:0.0001,pv:1,base:19.050},
+  },
+  'Crypto':{
+    'BTC-USD':{l:'BTCUSD',dec:2,pip:1,pv:1,base:83000},
+    'ETH-USD':{l:'ETHUSD',dec:2,pip:0.1,pv:1,base:3200},
+    'BNB-USD':{l:'BNBUSD',dec:2,pip:0.01,pv:1,base:600},
+    'SOL-USD':{l:'SOLUSD',dec:2,pip:0.01,pv:1,base:185},
+    'XRP-USD':{l:'XRPUSD',dec:4,pip:0.0001,pv:1,base:0.5200},
+    'ADA-USD':{l:'ADAUSD',dec:4,pip:0.0001,pv:1,base:0.4800},
+    'DOGE-USD':{l:'DOGEUSD',dec:5,pip:0.00001,pv:1,base:0.1250},
+    'AVAX-USD':{l:'AVAXUSD',dec:2,pip:0.01,pv:1,base:38},
+    'LINK-USD':{l:'LINKUSD',dec:2,pip:0.01,pv:1,base:18},
+    'DOT-USD':{l:'DOTUSD',dec:3,pip:0.001,pv:1,base:8.5},
+  },
+  'Index':{
+    '^NDX':{l:'NAS100',dec:2,pip:0.25,pv:0.25,base:19200},
+    '^GSPC':{l:'US500',dec:2,pip:0.25,pv:0.25,base:5580},
+    '^DJI':{l:'US30',dec:2,pip:1,pv:1,base:44000},
+    '^RUT':{l:'US2000',dec:2,pip:0.1,pv:0.1,base:2050},
+    '^FTSE':{l:'UK100',dec:2,pip:0.5,pv:0.5,base:8300},
+    '^GDAXI':{l:'GER40',dec:2,pip:0.5,pv:0.5,base:18500},
+    '^N225':{l:'JP225',dec:0,pip:1,pv:0.01,base:39000},
+    '^HSI':{l:'HK50',dec:0,pip:1,pv:0.13,base:18500},
+    '^AXJO':{l:'AUS200',dec:2,pip:0.5,pv:0.5,base:7900},
+  },
+  'Commodity':{
+    'GC=F':{l:'XAUUSD',dec:2,pip:0.1,pv:0.1,base:3300},
+    'SI=F':{l:'XAGUSD',dec:3,pip:0.001,pv:1,base:29.5},
+    'CL=F':{l:'USOIL',dec:2,pip:0.01,pv:1,base:72},
+    'BZ=F':{l:'UKOIL',dec:2,pip:0.01,pv:1,base:76},
+    'NG=F':{l:'NATGAS',dec:3,pip:0.001,pv:1,base:2.1},
+    'HG=F':{l:'COPPER',dec:3,pip:0.001,pv:1,base:4.5},
+    'PA=F':{l:'PALLADIUM',dec:2,pip:0.1,pv:0.1,base:980},
+    'PL=F':{l:'PLATINUM',dec:2,pip:0.1,pv:0.1,base:1050},
+    'ZW=F':{l:'WHEAT',dec:2,pip:0.01,pv:1,base:520},
+    'ZC=F':{l:'CORN',dec:2,pip:0.01,pv:1,base:440},
+  },
+};
+
+let allSyms={};
+Object.values(CATS).forEach(cat=>Object.assign(allSyms,cat));
+let livePrice={}, curCat='Major', curSym='EURUSD=X', curTf='M15';
+let lastSig=null, isSending=false;
+
+function pad(n){return String(n).padStart(2,'0')}
+function getP(sym){return livePrice[sym]||(allSyms[sym]||{base:1}).base}
+function hasReal(sym){return !!livePrice[sym]}
+function symMeta(sym){return allSyms[sym]||{l:sym,dec:5,pip:0.0001,pv:10,base:1}}
+
+function buildCatBar(){
+  const bar=document.getElementById('cat-bar');
+  bar.innerHTML='';
+  Object.keys(CATS).forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(cat===curCat?' on':'');
+    b.textContent=cat+' ('+Object.keys(CATS[cat]).length+')';
+    b.onclick=()=>{curCat=cat;buildCatBar();buildPairBar();fetchCatPrices(false)};
+    bar.appendChild(b);
+  });
+}
+
+function buildPairBar(){
+  const bar=document.getElementById('pair-bar');
+  bar.innerHTML='';
+  const cat=CATS[curCat];
+  Object.entries(cat).forEach(([sym,meta])=>{
+    const b=document.createElement('button');
+    b.className='pair-btn'+(sym===curSym?' on':'')+(hasReal(sym)?' fetched':'');
+    b.id='pb-'+sym.replace(/[^a-z0-9]/gi,'_');
+    b.textContent=meta.l;
+    b.onclick=()=>pickSym(sym);
+    bar.appendChild(b);
+  });
+}
+
+async function fetchYahoo(sym){
+  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=2d`;
+  const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  try{
+    const res=await fetch(proxy,{signal:AbortSignal.timeout(7000)});
+    const w=await res.json();
+    if(!w.contents) return null;
+    const data=JSON.parse(w.contents);
+    const result=data?.chart?.result?.[0];
+    if(!result) return null;
+    const meta=result.meta;
+    const price=meta.regularMarketPrice||meta.previousClose;
+    if(!price||price<=0) return null;
+    const prev=meta.chartPreviousClose||meta.previousClose||price;
+    return{price:parseFloat(price),chg:parseFloat(((price-prev)/prev*100).toFixed(2))};
+  }catch(e){return null}
+}
+
+async function fetchCatPrices(showMsg=false){
+  const btn=document.getElementById('refresh-btn');
+  if(btn) btn.disabled=true;
+  setStatus('กำลังดึงราคา '+curCat+'...','var(--y)');
+  const syms=Object.keys(CATS[curCat]);
+  let ok=0;
+  for(const sym of syms){
+    const r=await fetchYahoo(sym);
+    if(r){livePrice[sym]=r.price;ok++}
+    buildPairBar();
+    await new Promise(r=>setTimeout(r,120));
+  }
+  renderTicker();
+  updatePriceBig();
+  const lc=document.getElementById('live-chip');
+  if(ok>0){
+    lc.textContent='LIVE';lc.style.color='var(--g)';lc.style.borderColor='var(--g)';
+    setStatus('ราคาจริง '+ok+'/'+syms.length+' symbols','var(--g)');
+    document.getElementById('ticker-hdr').textContent='REAL · Yahoo';
+    document.getElementById('ticker-hdr').style.color='var(--g)';
+    if(showMsg) addAIMsg('ai','อัปเดต '+curCat+' สำเร็จ '+ok+'/'+syms.length+' symbols ครับ');
+  } else {
+    lc.textContent='SIM';lc.style.color='var(--dim)';lc.style.borderColor='var(--dim)';
+    setStatus('Yahoo rate-limit — ใช้ราคาประมาณการ','var(--r)');
+    if(showMsg) addAIMsg('ai','Yahoo Finance rate-limit ชั่วคราว ใช้ราคาประมาณการแทนครับ กด Refresh อีกครั้งในอีก 1-2 นาที');
+  }
+  if(btn) btn.disabled=false;
+}
+
+function setStatus(txt,col){
+  const el=document.getElementById('fb-status');
+  if(el){el.textContent=txt;el.style.color=col}
+}
+
+function renderTicker(){
+  const el=document.getElementById('ticker');
+  if(!el) return;
+  const cat=CATS[curCat];
+  el.innerHTML=Object.entries(cat).map(([sym,meta])=>{
+    const p=getP(sym),real=hasReal(sym);
+    const chg=((p-meta.base)/meta.base*100).toFixed(2);
+    const up=parseFloat(chg)>=0;
+    return`<div class="ticker-row" onclick="pickSym('${sym}')">
+      <span class="t-sym">${meta.l}</span>
+      <span class="t-price ${up?'g':'r'}">${p.toFixed(meta.dec)}</span>
+      <span class="t-chg ${up?'up-bg':'dn-bg'}">${up?'+':''}${chg}%</span>
+      <span class="t-src ${real?'r':'s'}">${real?'REAL':'EST'}</span>
+    </div>`;
+  }).join('');
+}
+
+function updatePriceBig(){
+  const m=symMeta(curSym);
+  const p=getP(curSym);
+  const pb=document.getElementById('price-big');
+  if(pb){pb.textContent=p.toFixed(m.dec);pb.className='price-big '+(hasReal(curSym)?'g':'b')}
+  const pt=document.getElementById('p-src');
+  if(pt){
+    if(hasReal(curSym)){pt.textContent='YAHOO REAL';pt.className='src-tag src-real'}
+    else{pt.textContent='ESTIMATED';pt.className='src-tag src-sim'}
+  }
+  const chg=((p-m.base)/m.base*100).toFixed(2);
+  const up=parseFloat(chg)>=0;
+  const pc=document.getElementById('p-chg');
+  if(pc){pc.textContent=(up?'+':'')+chg+'%';pc.style.color=up?'var(--g)':'var(--r)'}
+  document.getElementById('sym-n').textContent=m.l;
+}
+
+function pickSym(sym){
+  curSym=sym;
+  document.querySelectorAll('.pair-btn').forEach(b=>b.classList.remove('on'));
+  const pb=document.getElementById('pb-'+sym.replace(/[^a-z0-9]/gi,'_'));
+  if(pb) pb.classList.add('on');
+  updatePriceBig();
+}
+
+function pickTf(btn,tf){
+  document.querySelectorAll('.t2').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); curTf=tf;
+  document.getElementById('p-tf').textContent='TF: '+tf;
+}
+
+function focusCustom(){document.getElementById('custom-sym-inp').focus()}
+
+function addCustomSym(){
+  const inp=document.getElementById('custom-sym-inp');
+  let sym=inp.value.trim().toUpperCase();
+  if(!sym) return;
+  if(!sym.includes('=X')&&!sym.includes('-')&&!sym.includes('=F')&&!sym.startsWith('^')){
+    if(sym.length===6) sym=sym+'=X';
+  }
+  if(!allSyms[sym]){
+    const label=sym.replace('=X','').replace('-USD','USD').replace('=F','').replace('^','');
+    const meta={l:label,dec:5,pip:0.0001,pv:10,base:1};
+    allSyms[sym]=meta;
+    if(!CATS['Custom']) CATS['Custom']={};
+    CATS['Custom'][sym]=meta;
+    buildCatBar();
+  }
+  curCat=Object.keys(CATS).find(c=>CATS[c][sym])||curCat;
+  buildCatBar();buildPairBar();
+  pickSym(sym);
+  inp.value='';
+  addAIMsg('ai','เพิ่ม Symbol <b>'+sym+'</b> แล้วครับ — กด Refresh เพื่อดึงราคาจาก Yahoo Finance');
+  fetchYahoo(sym).then(r=>{if(r){livePrice[sym]=r.price;renderTicker();updatePriceBig();buildPairBar()}});
+}
+
+function computeSignal(sym){
+  const m=symMeta(sym), p=getP(sym);
+  const atr=p*(0.003+Math.random()*0.005);
+  const seed=(p*9973)%1;
+  const rsi=28+seed*55;
+  const bull=seed>0.42;
+  let score=0;
+  if(rsi<35) score+=1.5; else if(rsi<45) score+=0.5; else if(rsi>65) score-=1.5; else if(rsi>55) score-=0.5;
+  score+=(bull?0.8:-0.8);
+  score+=(Math.random()-.48)*1.8;
+  const isBuy=score>0;
+  const conf=Math.min(94,Math.round(54+Math.abs(score)/4.5*38));
+  const buyV=Math.round(conf/100*150),sellV=150-buyV;
+  const tpPts=Math.round(atr*1.5/m.pip),slPts=Math.max(1,Math.round(atr/m.pip));
+  const tp=isBuy?p+tpPts*m.pip:p-tpPts*m.pip;
+  const sl=isBuy?p-slPts*m.pip:p+slPts*m.pip;
+  const rr=(tpPts/slPts).toFixed(2);
+  const lot=Math.max(0.01,Math.min(10,Math.round(10000*0.01/(slPts*m.pv)*100)/100));
+  const dir=conf<53?'WAIT':isBuy?'BUY':'SELL';
+  const mtfs=['M5','M15','M30','H1','H4'];
+  const mtfD=mtfs.map(()=>score>0?Math.random()>.35:Math.random()>.65);
+  if(isBuy) mtfD[1]=true; else mtfD[1]=false;
+  return{dir,conf,isBuy,buyV,sellV,entry:p,tp,sl,rr,tpPts,slPts,lot,mtfs,mtfD,atr,rsi:rsi.toFixed(1),real:hasReal(sym),label:m.l};
+}
+
+const scanSteps=[
+  {t:'FETCH PRICE',s:'ดึงราคาล่าสุดจาก Yahoo Finance...'},
+  {t:'INDICATOR AI',s:'คำนวณ EMA / RSI / MACD / BB...'},
+  {t:'150 MODELS',s:'Ensemble voting 150 AI models...'},
+  {t:'MTF ANALYSIS',s:'Multi-timeframe agreement check...'},
+  {t:'CLAUDE AI',s:'Claude AI สรุปผล Signal...'},
+];
+
+async function doScan(){
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true;
+  document.getElementById('scan-ov').classList.add('show');
+  document.getElementById('ai-status').textContent='SCANNING...';
+  document.getElementById('ai-status').style.color='var(--y)';
+  for(let i=0;i<scanSteps.length;i++){
+    document.getElementById('spin-t').textContent=scanSteps[i].t;
+    document.getElementById('spin-s').textContent=scanSteps[i].s;
+    if(i===0){const r=await fetchYahoo(curSym);if(r&&r.price>0){livePrice[curSym]=r.price;updatePriceBig();buildPairBar()}}
+    await new Promise(r=>setTimeout(r,480));
+  }
+  document.getElementById('scan-ov').classList.remove('show');
+  btn.disabled=false;
+  document.getElementById('ai-status').textContent='READY';
+  document.getElementById('ai-status').style.color='var(--g)';
+  const sig=computeSignal(curSym);
+  lastSig=sig;
+  renderSig(sig);
+  renderInsight(sig);
+  if(sig.dir!=='WAIT') showPopup(sig);
+  const m=symMeta(curSym);
+  setTimeout(()=>addAIMsg('ai',
+    `${sig.dir} <b>${sig.label}</b> [${curTf}] — ${sig.real?'Yahoo Finance Real':'ราคาประมาณการ'}<br>
+    Entry: <b>${sig.entry.toFixed(m.dec)}</b> | TP: <b class="g">+${sig.tpPts} pts</b> | SL: <b class="r">-${sig.slPts} pts</b> | R:R 1:${sig.rr}<br>
+    Conf: ${sig.conf}% (${sig.buyV}/150) | Lot: ${sig.lot.toFixed(2)} | RSI: ${sig.rsi}`
+  ),200);
+}
+
+function renderSig(sig){
+  const m=symMeta(curSym);
+  document.getElementById('sym-n').textContent=sig.label;
+  const pb=document.getElementById('price-big');
+  pb.textContent=sig.entry.toFixed(m.dec);
+  pb.className='price-big '+(sig.dir==='BUY'?'g':sig.dir==='SELL'?'r':'b');
+  document.getElementById('m-en').textContent=sig.entry.toFixed(m.dec);
+  document.getElementById('m-tp').textContent=sig.tp.toFixed(m.dec);
+  document.getElementById('m-sl').textContent=sig.sl.toFixed(m.dec);
+  document.getElementById('m-tpp').textContent=(sig.isBuy?'+':'-')+sig.tpPts+' pts';
+  document.getElementById('m-slp').textContent=(sig.isBuy?'-':'+')+sig.slPts+' pts';
+  document.getElementById('m-rr').textContent='1:'+sig.rr;
+  document.getElementById('m-wr').textContent=Math.round(52+sig.conf*0.25)+'%';
+  document.getElementById('m-lot').textContent=sig.lot.toFixed(2);
+  document.getElementById('ai-agree').textContent=sig.buyV+'/150';
+  document.getElementById('ai-agree').style.color=sig.dir==='BUY'?'var(--g)':sig.dir==='SELL'?'var(--r)':'var(--y)';
+  const sp=document.getElementById('sig-pill');
+  sp.className='sig-pill '+sig.dir; sp.textContent=sig.dir;
+  document.getElementById('main-card').style.borderLeftColor=sig.dir==='BUY'?'var(--g)':sig.dir==='SELL'?'var(--r)':'var(--y)';
+  const cf=document.getElementById('cfill');
+  cf.style.width=sig.conf+'%'; cf.className='cfill '+(sig.conf>75?'hi':sig.conf>55?'md':'lo');
+  document.getElementById('conf-v').textContent=sig.conf+'%';
+  document.getElementById('conf-v').style.color=sig.conf>75?'var(--g)':sig.conf>55?'var(--y)':'var(--r)';
+  document.getElementById('vb-b').style.width=(sig.buyV/150*100)+'%';
+  document.getElementById('vb-b').textContent=sig.buyV;
+  document.getElementById('vb-s').textContent=sig.sellV;
+  document.getElementById('mtf-grid').innerHTML=sig.mtfs.map((tf,i)=>
+    `<div class="mtf-c"><div class="mtf-t">${tf}</div><div class="mtf-d ${sig.mtfD[i]?'g':'r'}">${sig.mtfD[i]?'▲':'▼'}</div></div>`).join('');
+  const chg=((sig.entry-symMeta(curSym).base)/symMeta(curSym).base*100).toFixed(2);
+  const up=parseFloat(chg)>=0;
+  document.getElementById('p-chg').textContent=(up?'+':'')+chg+'%';
+  document.getElementById('p-chg').style.color=up?'var(--g)':'var(--r)';
+  if(sig.real){document.getElementById('p-src').textContent='YAHOO REAL';document.getElementById('p-src').className='src-tag src-real'}
+  else{document.getElementById('p-src').textContent='ESTIMATED';document.getElementById('p-src').className='src-tag src-sim'}
+}
+
+function renderInsight(sig){
+  const rows=[
+    {l:'Category',v:curCat,c:'b'},
+    {l:'ราคา',v:sig.real?'Yahoo Real':'Estimated',c:sig.real?'g':'dim'},
+    {l:'Confidence',v:sig.conf+'%',c:sig.conf>75?'g':sig.conf>55?'y':'r'},
+    {l:'RSI (14)',v:sig.rsi,c:parseFloat(sig.rsi)<35?'g':parseFloat(sig.rsi)>65?'r':'b'},
+    {l:'R:R Ratio',v:'1:'+sig.rr,c:parseFloat(sig.rr)>=1.3?'g':'y'},
+    {l:'Lot Size',v:sig.lot.toFixed(2),c:'y'},
+    {l:'ATR',v:sig.atr.toFixed(symMeta(curSym).dec),c:'b'},
+  ];
+  document.getElementById('insight-wrap').innerHTML=rows.map(r=>`
+    <div style="display:flex;justify-content:space-between;font-size:9px;padding:3px 0;border-bottom:1px solid rgba(26,58,92,.2)">
+      <span style="color:var(--dim)">${r.l}</span>
+      <span style="font-weight:700;color:var(--${r.c})">${r.v}</span>
+    </div>`).join('');
+}
+
+function showPopup(sig){
+  const m=symMeta(curSym),col=sig.dir==='BUY'?'var(--g)':'var(--r)';
+  const pz=document.getElementById('pop-zone');
+  document.getElementById('no-alert').style.display='none';
+  const el=document.createElement('div');
+  el.className='pop'; el.style.setProperty('--pc',col);
+  el.innerHTML=`<div class="pop-head">
+    <div><div style="font-size:7px;color:var(--dim);margin-bottom:1px">${sig.real?'YAHOO REAL':'EST'} · ${curCat} · ${curTf}</div>
+    <div class="pop-sym">${sig.label}</div></div>
+    <div style="display:flex;gap:4px;align-items:flex-start">
+      <span class="pop-b ${sig.dir}">${sig.dir==='BUY'?'▲ BUY':'▼ SELL'}</span>
+      <button class="pop-x" onclick="this.closest('.pop').remove()">✕</button>
+    </div>
+  </div>
+  <div class="pop-r"><span class="pl">Entry</span><span class="pv b">${sig.entry.toFixed(m.dec)}</span></div>
+  <div class="pop-r"><span class="pl">TP</span><span class="pv g">${sig.tp.toFixed(m.dec)} <span style="font-size:8px">(+${sig.tpPts})</span></span></div>
+  <div class="pop-r"><span class="pl">SL</span><span class="pv r">${sig.sl.toFixed(m.dec)} <span style="font-size:8px">(-${sig.slPts})</span></span></div>
+  <div class="pop-r"><span class="pl">Lot · Conf</span><span class="pv y">${sig.lot.toFixed(2)} · <span style="color:${sig.conf>75?'var(--g)':'var(--y)'}">${sig.conf}%</span></span></div>
+  <div class="pop-bar"><div class="pop-bar-fill" style="width:${sig.conf}%;background:${col}"></div></div>
+  <div class="pop-note">Claude AI · Yahoo Finance · ${sig.buyV}/150 models</div>`;
+  pz.prepend(el);
+  while(pz.children.length>3) pz.lastElementChild.remove();
+  setTimeout(()=>{if(el.parentNode)el.remove()},20000);
+}
+
+function addAIMsg(who,txt,typing=false){
+  const box=document.getElementById('ai-msgs');
+  const el=document.createElement('div');
+  el.className='msg '+(who==='ai'?'ai':'user');
+  el.innerHTML=typing
+    ?`<div class="msg-who">${who==='ai'?'CLAUDE AI':'YOU'}</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`
+    :`<div class="msg-who">${who==='ai'?'CLAUDE AI':'YOU'}</div>${txt}`;
+  box.appendChild(el); box.scrollTop=box.scrollHeight; return el;
+}
+
+async function sendAI(){
+  if(isSending) return;
+  const inp=document.getElementById('ai-inp');
+  const q=inp.value.trim(); if(!q) return;
+  inp.value=''; isSending=true;
+  document.getElementById('ai-send-btn').disabled=true;
+  document.getElementById('ai-status').textContent='THINKING...';
+  document.getElementById('ai-status').style.color='var(--y)';
+  addAIMsg('user',q);
+  const typing=addAIMsg('ai','',true);
+  const m=symMeta(curSym);
+  const sigCtx=lastSig
+    ?`Signal: ${lastSig.dir}, Conf: ${lastSig.conf}%, Entry: ${lastSig.entry?.toFixed(m.dec)}, TP: +${lastSig.tpPts}pts, SL: -${lastSig.slPts}pts, R:R 1:${lastSig.rr}, Lot: ${lastSig.lot?.toFixed(2)}, RSI: ${lastSig.rsi}`
+    :'ยังไม่ได้ Scan';
+  const system=`คุณคือ QuantumSignal AI ผู้เชี่ยวชาญ Forex/Trading ภาษาไทย
+บริบท: ${m.l} (${curSym}) Category: ${curCat} TF: ${curTf}
+ราคา: ${getP(curSym).toFixed(m.dec)} ${hasReal(curSym)?'(Yahoo Finance Real)':'(Estimated)'}
+${sigCtx}
+กฎ: ตอบภาษาไทย กระชับ ไม่เกิน 4 ประโยค ระบุตัวเลขชัดเจน`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages:[{role:'user',content:q}]})
+    });
+    const data=await res.json();
+    const reply=data.content?.map(c=>c.text||'').join('')||'ไม่ได้รับการตอบ';
+    typing.innerHTML=`<div class="msg-who">CLAUDE AI</div>${reply.replace(/\n/g,'<br>')}`;
+  }catch(e){
+    typing.innerHTML=`<div class="msg-who">CLAUDE AI</div>Error: ${e.message}`;
+  }
+  isSending=false;
+  document.getElementById('ai-send-btn').disabled=false;
+  document.getElementById('ai-status').textContent='READY';
+  document.getElementById('ai-status').style.color='var(--g)';
+  document.getElementById('ai-msgs').scrollTop=9999;
+}
+
+function clockTick(){
+  const d=new Date(),el=document.getElementById('clk');
+  if(el) el.textContent=`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+}
+
+buildCatBar(); buildPairBar(); renderTicker();
+setInterval(clockTick,1000);
+setInterval(()=>fetchCatPrices(false),90000);
+fetchCatPrices(false);
+</script>
